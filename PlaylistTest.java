@@ -3,15 +3,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Test runner 
- */
+
 public class PlaylistTest {
 
     private static int passed = 0;
     private static int failed = 0;
 
-    /** helper กลาง — พิมพ์ PASS/FAIL และนับผลให้เอง */
     private static void check(String name, boolean condition) {
         if (condition) {
             passed++;
