@@ -28,17 +28,32 @@ public class Playlist {
 
     // TODO 2: เขียน Representation Invariant ตรงนี้ (4 ข้อ)
     // Representation Invariant:
-    //   ...
+    // 1. songs != null
+    // 2. เพลงใน songs ต้องไม่เป็น null
+    // 3. ชื่อเพลงใน songs ต้องไม่เป็นสตริงว่าง ("")
+    // 4. ชื่อเพลงห้ามซ้ำกัน
+    // 5. songs.size() <= MAX_SONGS
+        
 
     // TODO 3: เขียน Safety from rep exposure ตรงนี้
     // Safety from rep exposure:
-    //   ...
+    //  ตัวแปร songs ถูกประกาศเป็น private final
+    // ใน Contructor คัดลอกข้อมูลจาก input list เข้ามาใหม่ (Defensive Copy)
+    // ใน Observer song() คัดลอก List ใหม่ส่งกลับไป เพื่อป้องกัน client แก้ข้อมูลภายในตรงๆ
 
     /**
      * TODO 4: เขียน checkRep()
      * แปลง RI ทุกข้อเป็น assert หนึ่งบรรทัด พร้อมข้อความอธิบาย
      */
     private void checkRep() {
+        assert songs != null : "songs is not null";
+        assert songs.size() <= MAX_SONGS ;
+        Set<String> seen = new HashSet<>();
+        for(String s : songs){
+            assert s != null ;
+            assert s != "";
+            assert seen.add(s) ;
+        }
         // เขียนโค้ดตรงนี้
     }
 
@@ -62,7 +77,17 @@ public class Playlist {
      * @throws IllegalArgumentException ถ้า initial ผิดเงื่อนไข
      */
     public Playlist(List<String> initial) {
-        this.songs = null;   // แก้บรรทัดนี้
+        if(initial == null) throw new IllegalArgumentException();
+        if(initial.size()>MAX_SONGS) throw new IllegalArgumentException();
+        Set<String> seen = new HashSet<>();
+        for (String s : initial){
+            if(s==null) throw new IllegalArgumentException();
+            if(s=="") throw new IllegalArgumentException();
+            if(!seen.add(s)) throw new IllegalArgumentException();
+        }
+
+        this.songs = new ArrayList<>(initial);   // แก้บรรทัดนี้
+        checkRep();
         // เขียนโค้ดตรงนี้
     }
 
@@ -76,7 +101,12 @@ public class Playlist {
      * @throws IllegalArgumentException ถ้า song เป็น null หรือสตริงว่าง
      */
     public boolean add(String song) {
-        return false;   // แก้บรรทัดนี้
+
+        if(song == null || song == "") throw new IllegalArgumentException();
+        if(songs.contains(song)) return false;
+        if(songs.size()==MAX_SONGS) return false;
+        songs.add(song) ;
+        return true;   // แก้บรรทัดนี้
     }
 
     /**
@@ -86,7 +116,9 @@ public class Playlist {
      * @return true ถ้าลบสำเร็จ, false ถ้าไม่พบเพลงนี้
      */
     public boolean remove(String song) {
-        return false;   // แก้บรรทัดนี้
+        if(!songs.contains(song)) return false;
+        songs.remove(song);
+        return true;   // แก้บรรทัดนี้
     }
 
     // ===== Observers =====
@@ -95,14 +127,16 @@ public class Playlist {
      * TODO 8: คืนจำนวนเพลงในเพลย์ลิสต์
      */
     public int size() {
-        return -1;   // แก้บรรทัดนี้
+        
+        return songs.size();   // แก้บรรทัดนี้
     }
 
     /**
      * TODO 9: ตรวจว่ามีเพลงนี้อยู่หรือไม่
      */
     public boolean contains(String song) {
-        return false;   // แก้บรรทัดนี้
+
+        return songs.contains(song);   // แก้บรรทัดนี้
     }
 
     /**
@@ -111,7 +145,7 @@ public class Playlist {
      * ระวัง: ห้ามคืน reference ของ songs ตรง ๆ (rep exposure!)
      */
     public List<String> songs() {
-        return null;   // แก้บรรทัดนี้
+        return new ArrayList<>(songs);   // แก้บรรทัดนี้
     }
 
     // ===== Producer =====
@@ -124,7 +158,9 @@ public class Playlist {
      * @return เพลย์ลิสต์ใหม่ที่สลับลำดับแล้ว
      */
     public Playlist shuffled() {
-        return null;   // แก้บรรทัดนี้
+        List<String> copy = new ArrayList<>(songs);
+        Collections.shuffle(copy);
+        return new Playlist(copy);   // แก้บรรทัดนี้
     }
 
     @Override
